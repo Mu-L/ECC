@@ -44,11 +44,11 @@ Missing `htmlFor` / `id` pairing and disconnected error messages are the most co
 <label htmlFor="email">Email *</label>
 <input id="email" type="email" />
 
-// GOOD: aria-required signals requirement programmatically
+// GOOD: required enables native browser validation; aria-required signals it to screen readers
 <label htmlFor="email">
   Email <span aria-hidden="true">*</span>
 </label>
-<input id="email" type="email" aria-required="true" />
+<input id="email" type="email" required aria-required="true" />
 ```
 
 ### Error Messages
