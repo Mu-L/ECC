@@ -520,11 +520,63 @@ function normalizeClaudeHistorySession(session, sourceTarget) {
   });
 }
 
+function normalizeCodexWorktreeSession(session, sourceTarget) {
+  const state = session.active ? 'active' : 'recorded';
+  const objective = typeof session.objective === 'string' ? session.objective : '';
+  const worker = {
+    id: session.sessionId,
+    label: session.sessionId,
+    state,
+    health: 'healthy',
+    branch: session.branch || null,
+    worktree: session.cwd || null,
+    runtime: {
+      kind: 'codex-session',
+      command: 'codex',
+      pid: null,
+      active: Boolean(session.active),
+      dead: !session.active,
+    },
+    intent: {
+      objective,
+      seedPaths: []
+    },
+    outputs: {
+      summary: [],
+      validation: [],
+      remainingRisks: []
+    },
+    artifacts: {
+      sessionFile: session.sessionPath || null,
+      model: session.model || null,
+      originator: session.originator || null,
+      cliVersion: session.cliVersion || null,
+      startedAt: session.startedAt || null,
+      recordCount: Number.isInteger(session.recordCount) ? session.recordCount : null
+    }
+  };
+
+  return validateCanonicalSnapshot({
+    schemaVersion: SESSION_SCHEMA_VERSION,
+    adapterId: 'codex-worktree',
+    session: {
+      id: session.sessionId,
+      kind: 'codex-worktree',
+      state,
+      repoRoot: session.cwd || null,
+      sourceTarget
+    },
+    workers: [worker],
+    aggregates: buildAggregates([worker])
+  });
+}
+
 module.exports = {
   SESSION_SCHEMA_VERSION,
   buildAggregates,
   getFallbackSessionRecordingPath,
   normalizeClaudeHistorySession,
+  normalizeCodexWorktreeSession,
   normalizeDmuxSnapshot,
   persistCanonicalSnapshot,
   validateCanonicalSnapshot
